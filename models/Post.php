@@ -66,8 +66,11 @@ class Post
         // Prepare Statement
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
+        $stmt->execute();
 
+        // Get the post
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
+
         $this->title = $post["title"];
         $this->categoryId = $post["category_id"];
         $this->categoryName = $post["category_name"];
