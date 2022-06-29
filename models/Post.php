@@ -66,16 +66,55 @@ class Post
         // Prepare Statement
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
-        $stmt->execute();
 
-        // Get the post
-        $post = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($stmt->execute()) {
+            // Get the post
+            $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $this->title = $post["title"];
-        $this->categoryId = $post["category_id"];
-        $this->categoryName = $post["category_name"];
-        $this->body = $post["body"];
-        $this->author = $post["author"];
-        $this->createdAt = $post["created_at"];
+            $this->title = $post["title"];
+            $this->categoryId = $post["category_id"];
+            $this->categoryName = $post["category_name"];
+            $this->body = $post["body"];
+            $this->author = $post["author"];
+            $this->createdAt = $post["created_at"];
+
+            return true;
+        } else {
+            printf("Database Error: %s\n", $stmt->error);
+            return false;
+        }
+    }
+
+    // Create a Post
+    public function create()
+    {
+        $query = "INSERT INTO {$this->table} 
+        SET 
+         title = :title,
+         category_id= :category_id, 
+         body= :body, 
+         author= :author";
+
+        // Prepare Statement
+        $stmt = $this->conn->prepare($query);
+
+        // Sanitize data
+        $this->title = htmlspecialchars(strip_tags(trim($this->title)));
+        $this->categoryId = htmlspecialchars(strip_tags(trim($this->categoryId)));
+        $this->author = htmlspecialchars(strip_tags(trim($this->author)));
+        $this->body = htmlspecialchars(strip_tags(trim($this->body)));
+
+        // Bind Data
+        $stmt->bindParam(":title", $this->title);
+        $stmt->bindParam(":category_id", $this->categoryId);
+        $stmt->bindParam(":body", $this->body);
+        $stmt->bindParam(":author", $this->author);
+
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            printf("Database Error: %s\n", $stmt->error);
+            return false;
+        }
     }
 }
