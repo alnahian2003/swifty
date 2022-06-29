@@ -53,5 +53,5 @@ if ($rows > 0) {
     echo json_encode($postArr, JSON_PRETTY_PRINT);
 } else {
     // No Posts in the DB
-    json_encode(["error" => "No Post Found"]);
+    echo json_encode(["error" => "No Post Found"]);
 }
