@@ -154,4 +154,25 @@ class Post
             return false;
         }
     }
+
+    // Delete a Post
+    public function delete()
+    {
+        $query = "DELETE FROM {$this->table} WHERE id=:id";
+
+        // Prepare Statement
+        $stmt = $this->conn->prepare($query);
+
+        // Sanitize data
+        $this->id = htmlspecialchars(strip_tags(trim($this->id)));
+        // Bind Data 
+        $stmt->bindParam(":id", $this->id);
+
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            printf("Database Error: %s\n", $stmt->error);
+            return false;
+        }
+    }
 }
