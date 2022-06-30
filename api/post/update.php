@@ -18,7 +18,7 @@ $db = $database->connect();
 $post = new Post($db);
 
 // Get raw POSTed data
-$data = json_decode(file_get_contents("php://input"));
+$data = file_get_contents("php://input") != null ? json_decode(file_get_contents("php://input")) : die();
 
 $post->id = $data->id;
 $post->title = $data->title;
