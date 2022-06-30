@@ -30,8 +30,6 @@ if ($rows > 0) {
     // Posts Available
     $postsArr = [];
 
-    $postArr["data"] = [];
-
     while ($row = $posts->fetch(PDO::FETCH_ASSOC)) {
         extract($row);
 
@@ -46,11 +44,11 @@ if ($rows > 0) {
         ];
 
         // Push post item to data
-        array_push($postArr["data"], $postItem);
+        array_push($postsArr, $postItem);
     }
 
     // Turn posts array into JSON and display it
-    echo json_encode($postArr, JSON_PRETTY_PRINT);
+    echo json_encode($postsArr, JSON_PRETTY_PRINT);
 } else {
     // No Posts in the DB
     echo json_encode(["error" => "No Post Found"]);
