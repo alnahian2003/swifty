@@ -23,27 +23,32 @@ class Category extends BaseModel
     }
 
     // Get a Single Category
-    public function get(int $id): bool
+    public function get($keyValue): bool
     {
+        $primaryKey = $this->getPrimaryKey();
         $query = "
             SELECT * 
             FROM {$this->table} 
-            WHERE id = ?
+            WHERE {$primaryKey} = ?
             LIMIT 1
         ";
 
         // Prepare Statement
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $id, PDO::PARAM_INT);
+        $sanitizedKey = $this->sanitizeValue($keyValue);
+        $stmt->bindParam(1, $sanitizedKey);
 
         if ($stmt->execute()) {
             // Get the category
             $category = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($category) {
-                $this->id = $category["id"];
-                $this->name = $category["name"];
-                $this->title = $category["name"]; // For backward compatibility
+                $this->id = $category["id"] ?? null;
+                $this->name = $category["name"] ?? null;
+                $this->title = $category["name"] ?? null; // For backward compatibility
+                
+                // Set the primary key value
+                $this->setPrimaryKeyValue($category[$primaryKey]);
                 
                 return true;
             }

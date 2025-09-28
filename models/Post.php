@@ -53,11 +53,13 @@ class Post extends BaseModel
     }
 
     // Get a Single Post
-    public function get(int $id): bool
+    public function get($keyValue): bool
     {
+        $primaryKey = $this->getPrimaryKey();
         $query = "
             SELECT
                 c.name as category_name,
+                p.{$primaryKey},
                 p.id,
                 p.category_id,
                 p.title,
@@ -67,13 +69,14 @@ class Post extends BaseModel
             FROM {$this->table} p
             LEFT JOIN 
                 categories as c ON p.category_id = c.id
-            WHERE p.id = ?
+            WHERE p.{$primaryKey} = ?
             LIMIT 1
         ";
 
         // Prepare Statement
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $id, PDO::PARAM_INT);
+        $sanitizedKey = $this->sanitizeValue($keyValue);
+        $stmt->bindParam(1, $sanitizedKey);
 
         if ($stmt->execute()) {
             // Get the post
@@ -88,6 +91,9 @@ class Post extends BaseModel
                 $this->author = $post["author"];
                 $this->createdAt = $post["created_at"];
                 $this->created_at = $post["created_at"]; // Backward compatibility
+                
+                // Set the primary key value
+                $this->setPrimaryKeyValue($post[$primaryKey]);
 
                 return true;
             }
