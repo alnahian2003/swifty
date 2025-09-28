@@ -1,213 +1,236 @@
-# Database Configuration Guide
+# Laravel-Style Database Configuration
 
-The Swifty REST API now supports multiple database drivers, making it easy to switch between MySQL, PostgreSQL, SQLite, and other PDO-compatible databases by simply changing your `.env` configuration.
+The Swifty REST API now uses Laravel-style database configuration, making it extremely easy to switch between MySQL, PostgreSQL, SQLite, and other databases using convention over configuration.
 
-## Supported Database Drivers
+## Quick Setup (Laravel Way)
 
-- **MySQL** (default)
-- **PostgreSQL**
-- **SQLite**
-- **SQL Server** (experimental)
-- **Oracle** (experimental)
-
-## Configuration
-
-### 1. MySQL Configuration
+### 1. SQLite (Zero Configuration!)
 
 ```env
-DB_DRIVER=mysql
+DATABASE_CONNECTION=sqlite
+```
+
+That's it! The system automatically uses `db.sqlite` in your project root. No additional configuration needed.
+
+### 2. MySQL
+
+```env
+DATABASE_CONNECTION=mysql
+
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
 DB_PASSWORD=your_password
 DB_NAME=swifty
-DB_CHARSET=utf8mb4
 ```
 
-### 2. PostgreSQL Configuration
+### 3. PostgreSQL
 
 ```env
-DB_DRIVER=pgsql
+DATABASE_CONNECTION=pgsql
+
 DB_HOST=localhost
 DB_PORT=5432
 DB_USERNAME=postgres
 DB_PASSWORD=your_password
 DB_NAME=swifty
-DB_CHARSET=utf8
 ```
 
-### 3. SQLite Configuration
+## Laravel-Style Conventions
+
+### Convention Over Configuration
+
+The system follows Laravel's approach of sensible defaults:
+
+- **SQLite**: Automatically uses `db.sqlite` in project root
+- **MySQL**: Uses standard MySQL defaults (localhost:3306)
+- **PostgreSQL**: Uses standard PostgreSQL defaults (localhost:5432)
+
+### Environment Variable Priority
+
+The system supports both Laravel-style and legacy configuration:
+
+1. `DATABASE_CONNECTION` (Laravel-style, preferred)
+2. `DB_DRIVER` (legacy, still supported)
+
+### Database-Specific Defaults
+
+| Database | Default File/Host | Default Port | Default User |
+|----------|------------------|--------------|--------------|
+| SQLite | `db.sqlite` (project root) | N/A | N/A |
+| MySQL | localhost | 3306 | root |
+| PostgreSQL | localhost | 5432 | postgres |
+
+## Supported Database Types
+
+- **MySQL** - Full support with optimization
+- **PostgreSQL** - Full support with proper defaults
+- **SQLite** - Zero-config setup
+- **SQL Server** - Experimental support
+- **Oracle** - Experimental support
+
+## Quick Start Examples
+
+### Using SQLite (Recommended for Development)
+
+1. Set your connection:
+   ```env
+   DATABASE_CONNECTION=sqlite
+   ```
+
+2. Create the database file:
+   ```bash
+   touch db.sqlite
+   ```
+
+3. That's it! Your app is ready to use SQLite.
+
+### Using MySQL (Production Ready)
+
+1. Copy the MySQL template:
+   ```bash
+   cp .env.mysql.example .env
+   ```
+
+2. Update your credentials:
+   ```env
+   DATABASE_CONNECTION=mysql
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+   DB_NAME=your_database
+   ```
+
+3. Create your database and import schema.
+
+### Using PostgreSQL (Enterprise Ready)
+
+1. Copy the PostgreSQL template:
+   ```bash
+   cp .env.postgresql.example .env
+   ```
+
+2. Update your credentials:
+   ```env
+   DATABASE_CONNECTION=pgsql
+   DB_USERNAME=postgres
+   DB_PASSWORD=your_password
+   DB_NAME=your_database
+   ```
+
+## Advanced Configuration
+
+### Custom SQLite Path
 
 ```env
-DB_DRIVER=sqlite
-DB_NAME=/path/to/your/database.sqlite
-# Note: For SQLite, HOST, PORT, USERNAME, PASSWORD are not needed
+DATABASE_CONNECTION=sqlite
+DB_DATABASE=/custom/path/to/database.sqlite
 ```
 
-### 4. SQL Server Configuration
+### Custom Ports
 
 ```env
-DB_DRIVER=sqlsrv
+DATABASE_CONNECTION=mysql
+DB_PORT=3307  # Custom MySQL port
+```
+
+### Custom Charset
+
+```env
+DATABASE_CONNECTION=mysql
+DB_CHARSET=utf8  # Instead of default utf8mb4
+```
+
+## Migration from Old Configuration
+
+### Before (Legacy)
+```env
+DB_DRIVER=mysql
 DB_HOST=localhost
-DB_PORT=1433
-DB_USERNAME=sa
-DB_PASSWORD=your_password
-DB_NAME=swifty
+# ... other settings
 ```
 
-## Quick Setup Examples
-
-### Using MySQL (Default)
-
-1. Copy `.env.mysql.example` to `.env`
-2. Update the database credentials
-3. Create your MySQL database
-4. Import the `swifty.sql` file
-
-```bash
-cp .env.mysql.example .env
-# Edit .env with your MySQL credentials
-mysql -u root -p < swifty.sql
+### After (Laravel-style)
+```env
+DATABASE_CONNECTION=mysql
+DB_HOST=localhost
+# ... other settings (unchanged)
 ```
 
-### Using PostgreSQL
+**Note**: Legacy configuration is still supported for backward compatibility.
 
-1. Copy `.env.postgresql.example` to `.env`
-2. Update the database credentials
-3. Create your PostgreSQL database
-4. Import the schema (you may need to convert from MySQL syntax)
+## Environment Files
 
-```bash
-cp .env.postgresql.example .env
-# Edit .env with your PostgreSQL credentials
-createdb swifty
-# Import your schema
-```
+We provide ready-to-use environment files:
 
-### Using SQLite
+- `.env.mysql.example` - MySQL configuration
+- `.env.postgresql.example` - PostgreSQL configuration  
+- `.env.sqlite.example` - SQLite configuration (minimal)
 
-1. Copy `.env.sqlite.example` to `.env`
-2. Update the database file path
-3. Create your SQLite database file
+## Automatic Database Detection
 
-```bash
-cp .env.sqlite.example .env
-# Edit .env with your SQLite file path
-sqlite3 /path/to/your/database.sqlite < swifty_sqlite.sql
-```
+The system automatically detects your database choice and:
 
-## Database-Specific Features
-
-### Automatic Driver Detection
-
-The system automatically detects your database driver and applies appropriate configurations:
-
-```php
-$database = Database::fromEnv();
-$connection = $database->connect();
-
-// Check the driver
-if ($database->isMysql()) {
-    // MySQL-specific operations
-} elseif ($database->isPostgresql()) {
-    // PostgreSQL-specific operations
-} elseif ($database->isSqlite()) {
-    // SQLite-specific operations
-}
-```
-
-### SQL Syntax Adaptation
-
-The system automatically adapts SQL syntax for different databases:
-
-```php
-// LIMIT syntax is automatically adapted
-$limitSql = $database->getLimitSyntax(10, 5);
-// MySQL: "LIMIT 5, 10"
-// PostgreSQL: "LIMIT 10 OFFSET 5"
-```
-
-### Last Insert ID
-
-The system handles last insert ID differently for each driver:
-
-```php
-// PostgreSQL requires sequence name for certain tables
-$lastId = $database->getLastInsertId('posts_id_seq');
-```
-
-## Environment Variables Reference
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `DB_DRIVER` | Database driver (mysql, pgsql, sqlite, sqlsrv) | No | mysql |
-| `DB_HOST` | Database host | For network DBs | localhost |
-| `DB_PORT` | Database port | No | 3306 (MySQL), 5432 (PostgreSQL) |
-| `DB_USERNAME` | Database username | For network DBs | root |
-| `DB_PASSWORD` | Database password | For network DBs | (empty) |
-| `DB_NAME` | Database name or file path (SQLite) | Yes | swifty |
-| `DB_CHARSET` | Database charset | No | utf8mb4 |
-
-## Migration Guide
-
-### From Hardcoded MySQL to Flexible Configuration
-
-1. **Update your .env file** with the `DB_DRIVER` setting
-2. **No code changes required** - existing code continues to work
-3. **Test your application** with the new configuration
-
-### Converting Between Database Types
-
-When switching database types, you may need to:
-
-1. **Convert schema**: Different databases have different data types
-2. **Update SQL syntax**: Some queries may need database-specific adjustments
-3. **Handle sequences**: PostgreSQL uses sequences for auto-incrementing fields
-4. **Character encoding**: Different databases handle encoding differently
+1. **Sets appropriate defaults** for your database type
+2. **Applies driver-specific optimizations** 
+3. **Handles connection pooling** automatically
+4. **Manages SQL syntax differences** transparently
 
 ## Best Practices
 
-1. **Use environment-specific .env files** for different deployment environments
-2. **Test your application** with your chosen database before deployment
-3. **Use database-agnostic SQL** when possible to maintain portability
-4. **Implement proper error handling** for database-specific errors
-5. **Use connection pooling** in production environments
+### Development
+```env
+# Perfect for development - zero config
+DATABASE_CONNECTION=sqlite
+```
+
+### Testing
+```env
+# Fast and isolated
+DATABASE_CONNECTION=sqlite
+DB_DATABASE=test.sqlite
+```
+
+### Production
+```env
+# Robust and scalable
+DATABASE_CONNECTION=mysql
+DB_HOST=your-production-host
+DB_USERNAME=production_user
+DB_PASSWORD=secure_password
+DB_NAME=production_db
+```
 
 ## Troubleshooting
 
-### Common Issues
+### SQLite Issues
+- **File not found**: Ensure `db.sqlite` exists in project root
+- **Permission denied**: Check file permissions on SQLite file
+- **Path issues**: Use absolute paths if relative paths don't work
 
-1. **PDO driver not installed**: Install the appropriate PHP PDO extension
-   ```bash
-   # MySQL
-   sudo apt-get install php-mysql
-   
-   # PostgreSQL
-   sudo apt-get install php-pgsql
-   
-   # SQLite
-   sudo apt-get install php-sqlite3
-   ```
+### MySQL/PostgreSQL Issues
+- **Connection refused**: Verify database server is running
+- **Authentication failed**: Check username/password
+- **Database not found**: Ensure database exists
 
-2. **Connection refused**: Check your database server is running and accessible
+### Common Solutions
 
-3. **Authentication failed**: Verify your credentials are correct
+1. **Check environment loading**: Ensure `.env` file is loaded properly
+2. **Verify file paths**: SQLite paths should be accessible
+3. **Test connections**: Use database client to test credentials
+4. **Check logs**: Application logs show detailed error messages
 
-4. **Database not found**: Ensure the database exists and is accessible
+## Performance Notes
 
-### Error Messages
+- **SQLite**: Best for development, small applications
+- **MySQL**: Excellent for web applications, good performance
+- **PostgreSQL**: Best for complex queries, concurrent writes
 
-The system provides clear error messages for configuration issues:
+## Migration Tools
 
-- `"Unsupported database driver: xyz"` - Invalid DB_DRIVER value
-- `"Connection failed: ..."` - Connection or authentication issues
-- Database-specific PDO errors with detailed information
+The Laravel-style configuration works seamlessly with:
+- Database migration scripts
+- Seeders and fixtures  
+- Schema builders
+- Connection pooling systems
 
-## Performance Considerations
-
-- **MySQL**: Generally fastest for read-heavy applications
-- **PostgreSQL**: Better for complex queries and concurrent writes
-- **SQLite**: Best for development and small applications
-- **Connection pooling**: Recommended for production environments
-
-The flexible database configuration system maintains full backward compatibility while providing the flexibility to use the best database solution for your specific needs.
+This approach provides the simplicity of Laravel's database configuration while maintaining the flexibility and power needed for production applications.

@@ -48,26 +48,41 @@ A modern REST API built with PHP following current best practices and standards.
 
 ## Database Configuration
 
-The API supports multiple database types. Simply change the `DB_DRIVER` in your `.env` file:
+The API uses Laravel-style database configuration with convention over configuration:
 
 ```env
-# MySQL
-DB_DRIVER=mysql
+# SQLite (Zero configuration - perfect for development)
+DATABASE_CONNECTION=sqlite
+
+# MySQL (Production ready)
+DATABASE_CONNECTION=mysql
 DB_HOST=localhost
 DB_USERNAME=root
 DB_PASSWORD=your_password
 DB_NAME=swifty
 
-# PostgreSQL
-DB_DRIVER=pgsql
+# PostgreSQL (Enterprise ready)
+DATABASE_CONNECTION=pgsql
 DB_HOST=localhost
 DB_USERNAME=postgres
 DB_PASSWORD=your_password
 DB_NAME=swifty
+```
 
-# SQLite
-DB_DRIVER=sqlite
-DB_NAME=/path/to/database.sqlite
+### Quick Setup
+
+```bash
+# SQLite (Recommended for development)
+echo "DATABASE_CONNECTION=sqlite" > .env
+touch db.sqlite
+
+# MySQL
+cp .env.mysql.example .env
+# Edit .env with your credentials
+
+# PostgreSQL
+cp .env.postgresql.example .env
+# Edit .env with your credentials
 ```
 
 See [DATABASE_CONFIGURATION.md](DATABASE_CONFIGURATION.md) for complete setup instructions.

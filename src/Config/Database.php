@@ -125,17 +125,97 @@ class Database
     }
 
     /**
-     * Create database instance from environment variables
+     * Create database instance from environment variables (Laravel-style)
      */
     public static function fromEnv(): self
     {
+        $connection = $_ENV['DATABASE_CONNECTION'] ?? $_ENV['DB_DRIVER'] ?? 'mysql';
+        
+        // Laravel-style convention over configuration
+        switch (strtolower($connection)) {
+            case 'sqlite':
+                return self::createSqliteConnection();
+            
+            case 'mysql':
+                return self::createMysqlConnection();
+            
+            case 'pgsql':
+            case 'postgresql':
+                return self::createPostgresqlConnection();
+            
+            default:
+                return self::createCustomConnection($connection);
+        }
+    }
+
+    /**
+     * Create SQLite connection with Laravel conventions
+     */
+    private static function createSqliteConnection(): self
+    {
+        // Laravel convention: use database/database.sqlite or db.sqlite in root
+        $dbPath = $_ENV['DB_DATABASE'] ?? $_ENV['DB_NAME'] ?? 'db.sqlite';
+        
+        // If it's just a filename, assume it's in the project root
+        if (!str_contains($dbPath, '/') && !str_contains($dbPath, '\\')) {
+            $dbPath = __DIR__ . '/../../' . $dbPath;
+        }
+        
         return new self(
-            $_ENV['DB_DRIVER'] ?? 'mysql',
+            'sqlite',
+            '', // Not used for SQLite
+            0,  // Not used for SQLite
+            '', // Not used for SQLite
+            '', // Not used for SQLite
+            $dbPath,
+            'utf8'
+        );
+    }
+
+    /**
+     * Create MySQL connection with environment configuration
+     */
+    private static function createMysqlConnection(): self
+    {
+        return new self(
+            'mysql',
             $_ENV['DB_HOST'] ?? 'localhost',
             (int) ($_ENV['DB_PORT'] ?? 3306),
             $_ENV['DB_USERNAME'] ?? 'root',
             $_ENV['DB_PASSWORD'] ?? '',
-            $_ENV['DB_NAME'] ?? 'swifty',
+            $_ENV['DB_DATABASE'] ?? $_ENV['DB_NAME'] ?? 'swifty',
+            $_ENV['DB_CHARSET'] ?? 'utf8mb4'
+        );
+    }
+
+    /**
+     * Create PostgreSQL connection with environment configuration
+     */
+    private static function createPostgresqlConnection(): self
+    {
+        return new self(
+            'pgsql',
+            $_ENV['DB_HOST'] ?? 'localhost',
+            (int) ($_ENV['DB_PORT'] ?? 5432),
+            $_ENV['DB_USERNAME'] ?? 'postgres',
+            $_ENV['DB_PASSWORD'] ?? '',
+            $_ENV['DB_DATABASE'] ?? $_ENV['DB_NAME'] ?? 'swifty',
+            $_ENV['DB_CHARSET'] ?? 'utf8'
+        );
+    }
+
+    /**
+     * Create custom connection for other database types
+     */
+    private static function createCustomConnection(string $driver): self
+    {
+        return new self(
+            $driver,
+            $_ENV['DB_HOST'] ?? 'localhost',
+            (int) ($_ENV['DB_PORT'] ?? 3306),
+            $_ENV['DB_USERNAME'] ?? 'root',
+            $_ENV['DB_PASSWORD'] ?? '',
+            $_ENV['DB_DATABASE'] ?? $_ENV['DB_NAME'] ?? 'swifty',
             $_ENV['DB_CHARSET'] ?? 'utf8mb4'
         );
     }
