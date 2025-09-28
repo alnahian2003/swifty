@@ -5,31 +5,41 @@ declare(strict_types=1);
 /**
  * Legacy Database class - maintained for backward compatibility
  * For new code, use Swifty\Config\Database instead
+ * Now supports multiple database drivers (MySQL, PostgreSQL, SQLite)
  * 
  * @deprecated Use Swifty\Config\Database instead
  */
 class Database
 {
+    private string $driver;
     private string $host;
+    private int $port;
     private string $username;
     private string $password;
     private string $dbname;
+    private string $charset;
     private ?PDO $conn = null;
 
     public function __construct(
+        string $driver = "mysql",
         string $host = "localhost",
+        int $port = 3306,
         string $username = "root", 
         string $password = "",
-        string $dbname = "swifty"
+        string $dbname = "swifty",
+        string $charset = "utf8mb4"
     ) {
+        $this->driver = strtolower($driver);
         $this->host = $host;
+        $this->port = $port;
         $this->username = $username;
         $this->password = $password;
         $this->dbname = $dbname;
+        $this->charset = $charset;
     }
 
     /**
-     * Connect to the Database with improved error handling
+     * Connect to the Database with improved error handling and multi-driver support
      */
     public function connect(): ?PDO
     {
@@ -38,13 +48,10 @@ class Database
         }
 
         try {
-            $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
+            $dsn = $this->buildDsn();
+            $options = $this->getConnectionOptions();
             
-            $this->conn = new PDO($dsn, $this->username, $this->password, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false
-            ]);
+            $this->conn = new PDO($dsn, $this->username, $this->password, $options);
 
             return $this->conn;
         } catch (PDOException $e) {
@@ -55,5 +62,75 @@ class Database
             echo "Connection Error: " . $e->getMessage();
             return null;
         }
+    }
+
+    /**
+     * Build DSN string based on the database driver
+     */
+    private function buildDsn(): string
+    {
+        switch ($this->driver) {
+            case 'mysql':
+                return "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset={$this->charset}";
+            
+            case 'pgsql':
+            case 'postgresql':
+                return "pgsql:host={$this->host};port={$this->port};dbname={$this->dbname}";
+            
+            case 'sqlite':
+                // For SQLite, dbname is the file path
+                return "sqlite:{$this->dbname}";
+            
+            case 'sqlsrv':
+            case 'mssql':
+                return "sqlsrv:Server={$this->host},{$this->port};Database={$this->dbname}";
+            
+            default:
+                throw new Exception("Unsupported database driver: {$this->driver}");
+        }
+    }
+
+    /**
+     * Get connection options based on the database driver
+     */
+    private function getConnectionOptions(): array
+    {
+        $baseOptions = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ];
+
+        switch ($this->driver) {
+            case 'mysql':
+                $baseOptions[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES {$this->charset}";
+                break;
+        }
+
+        return $baseOptions;
+    }
+
+    /**
+     * Create database instance from environment variables
+     */
+    public static function fromEnv(): self
+    {
+        return new self(
+            $_ENV['DB_DRIVER'] ?? 'mysql',
+            $_ENV['DB_HOST'] ?? 'localhost',
+            (int) ($_ENV['DB_PORT'] ?? 3306),
+            $_ENV['DB_USERNAME'] ?? 'root',
+            $_ENV['DB_PASSWORD'] ?? '',
+            $_ENV['DB_NAME'] ?? 'swifty',
+            $_ENV['DB_CHARSET'] ?? 'utf8mb4'
+        );
+    }
+
+    /**
+     * Get the current database driver
+     */
+    public function getDriver(): string
+    {
+        return $this->driver;
     }
 }

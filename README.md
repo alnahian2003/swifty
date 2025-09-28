@@ -6,17 +6,23 @@ A modern REST API built with PHP following current best practices and standards.
 
 - **Modern PHP 8.0+** with strict types
 - **PSR-4 Autoloading** with Composer
+- **Multi-Database Support** (MySQL, PostgreSQL, SQLite)
 - **Proper Error Handling** with custom exceptions
 - **Input Validation** and sanitization
 - **Database Connection Pooling** with PDO
 - **Backward Compatibility** maintained
 - **Environment Configuration** support
 - **Structured Logging** for debugging
+- **Flexible Primary Keys** (Laravel-style)
 
 ## Requirements
 
 - PHP 8.0 or higher
-- MySQL 5.7 or higher
+- One of the supported databases:
+  - MySQL 5.7+ (default)
+  - PostgreSQL 9.6+
+  - SQLite 3.8+
+  - SQL Server (experimental)
 - Composer (for autoloading)
 
 ## Installation
@@ -26,8 +32,45 @@ A modern REST API built with PHP following current best practices and standards.
    ```bash
    composer install
    ```
-3. Copy `.env.example` to `.env` and configure your database settings
-4. Import the `swifty.sql` file to your MySQL database
+3. Choose and configure your database:
+   ```bash
+   # For MySQL (default)
+   cp .env.mysql.example .env
+   
+   # For PostgreSQL
+   cp .env.postgresql.example .env
+   
+   # For SQLite
+   cp .env.sqlite.example .env
+   ```
+4. Edit `.env` with your database credentials
+5. Import the appropriate SQL file to your database
+
+## Database Configuration
+
+The API supports multiple database types. Simply change the `DB_DRIVER` in your `.env` file:
+
+```env
+# MySQL
+DB_DRIVER=mysql
+DB_HOST=localhost
+DB_USERNAME=root
+DB_PASSWORD=your_password
+DB_NAME=swifty
+
+# PostgreSQL
+DB_DRIVER=pgsql
+DB_HOST=localhost
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+DB_NAME=swifty
+
+# SQLite
+DB_DRIVER=sqlite
+DB_NAME=/path/to/database.sqlite
+```
+
+See [DATABASE_CONFIGURATION.md](DATABASE_CONFIGURATION.md) for complete setup instructions.
 
 ## API Endpoints
 
