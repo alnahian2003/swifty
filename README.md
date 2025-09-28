@@ -32,57 +32,58 @@ A modern REST API built with PHP following current best practices and standards.
    ```bash
    composer install
    ```
-3. Choose and configure your database:
+3. Copy and configure your environment:
    ```bash
-   # For MySQL (default)
-   cp .env.mysql.example .env
-   
-   # For PostgreSQL
-   cp .env.postgresql.example .env
-   
-   # For SQLite
-   cp .env.sqlite.example .env
+   cp .env.example .env
    ```
-4. Edit `.env` with your database credentials
+4. Edit `.env` with your database configuration
 5. Import the appropriate SQL file to your database
 
 ## Database Configuration
 
-The API uses Laravel-style database configuration with convention over configuration:
+The API uses Laravel's exact database configuration format:
 
 ```env
 # SQLite (Zero configuration - perfect for development)
-DATABASE_CONNECTION=sqlite
+DB_CONNECTION=sqlite
 
 # MySQL (Production ready)
-DATABASE_CONNECTION=mysql
-DB_HOST=localhost
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=swifty
 DB_USERNAME=root
 DB_PASSWORD=your_password
-DB_NAME=swifty
 
 # PostgreSQL (Enterprise ready)
-DATABASE_CONNECTION=pgsql
-DB_HOST=localhost
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=swifty
 DB_USERNAME=postgres
 DB_PASSWORD=your_password
-DB_NAME=swifty
 ```
 
 ### Quick Setup
 
 ```bash
 # SQLite (Recommended for development)
-echo "DATABASE_CONNECTION=sqlite" > .env
+echo "DB_CONNECTION=sqlite" > .env
 touch db.sqlite
 
 # MySQL
-cp .env.mysql.example .env
-# Edit .env with your credentials
+echo "DB_CONNECTION=mysql" > .env
+echo "DB_HOST=127.0.0.1" >> .env
+echo "DB_DATABASE=swifty" >> .env
+echo "DB_USERNAME=root" >> .env
+echo "DB_PASSWORD=" >> .env
 
 # PostgreSQL
-cp .env.postgresql.example .env
-# Edit .env with your credentials
+echo "DB_CONNECTION=pgsql" > .env
+echo "DB_HOST=127.0.0.1" >> .env
+echo "DB_DATABASE=swifty" >> .env
+echo "DB_USERNAME=postgres" >> .env
+echo "DB_PASSWORD=" >> .env
 ```
 
 See [DATABASE_CONFIGURATION.md](DATABASE_CONFIGURATION.md) for complete setup instructions.

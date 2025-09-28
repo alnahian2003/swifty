@@ -129,7 +129,7 @@ class Database
      */
     public static function fromEnv(): self
     {
-        $connection = $_ENV['DATABASE_CONNECTION'] ?? $_ENV['DB_DRIVER'] ?? 'mysql';
+        $connection = $_ENV['DB_CONNECTION'] ?? $_ENV['DATABASE_CONNECTION'] ?? $_ENV['DB_DRIVER'] ?? 'mysql';
         
         // Laravel-style convention over configuration
         switch (strtolower($connection)) {
@@ -154,7 +154,7 @@ class Database
     private static function createSqliteConnection(): self
     {
         // Laravel convention: use database/database.sqlite or db.sqlite in root
-        $dbPath = $_ENV['DB_DATABASE'] ?? $_ENV['DB_NAME'] ?? 'db.sqlite';
+        $dbPath = $_ENV['DB_DATABASE'] ?? 'db.sqlite';
         
         // If it's just a filename, assume it's in the project root
         if (!str_contains($dbPath, '/') && !str_contains($dbPath, '\\')) {
@@ -179,11 +179,11 @@ class Database
     {
         return new self(
             'mysql',
-            $_ENV['DB_HOST'] ?? 'localhost',
+            $_ENV['DB_HOST'] ?? '127.0.0.1',
             (int) ($_ENV['DB_PORT'] ?? 3306),
             $_ENV['DB_USERNAME'] ?? 'root',
             $_ENV['DB_PASSWORD'] ?? '',
-            $_ENV['DB_DATABASE'] ?? $_ENV['DB_NAME'] ?? 'swifty',
+            $_ENV['DB_DATABASE'] ?? 'swifty',
             $_ENV['DB_CHARSET'] ?? 'utf8mb4'
         );
     }
@@ -195,11 +195,11 @@ class Database
     {
         return new self(
             'pgsql',
-            $_ENV['DB_HOST'] ?? 'localhost',
+            $_ENV['DB_HOST'] ?? '127.0.0.1',
             (int) ($_ENV['DB_PORT'] ?? 5432),
             $_ENV['DB_USERNAME'] ?? 'postgres',
             $_ENV['DB_PASSWORD'] ?? '',
-            $_ENV['DB_DATABASE'] ?? $_ENV['DB_NAME'] ?? 'swifty',
+            $_ENV['DB_DATABASE'] ?? 'swifty',
             $_ENV['DB_CHARSET'] ?? 'utf8'
         );
     }
@@ -211,11 +211,11 @@ class Database
     {
         return new self(
             $driver,
-            $_ENV['DB_HOST'] ?? 'localhost',
+            $_ENV['DB_HOST'] ?? '127.0.0.1',
             (int) ($_ENV['DB_PORT'] ?? 3306),
             $_ENV['DB_USERNAME'] ?? 'root',
             $_ENV['DB_PASSWORD'] ?? '',
-            $_ENV['DB_DATABASE'] ?? $_ENV['DB_NAME'] ?? 'swifty',
+            $_ENV['DB_DATABASE'] ?? 'swifty',
             $_ENV['DB_CHARSET'] ?? 'utf8mb4'
         );
     }

@@ -1,236 +1,161 @@
-# Laravel-Style Database Configuration
+# Laravel Database Configuration
 
-The Swifty REST API now uses Laravel-style database configuration, making it extremely easy to switch between MySQL, PostgreSQL, SQLite, and other databases using convention over configuration.
+The Swifty REST API uses Laravel's exact database configuration format for maximum compatibility and familiarity.
 
-## Quick Setup (Laravel Way)
+## Laravel-Style Configuration
 
-### 1. SQLite (Zero Configuration!)
+### Single .env File Approach
+
+Just like Laravel, use a single `.env` file with these exact variables:
 
 ```env
-DATABASE_CONNECTION=sqlite
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=swifty
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
-That's it! The system automatically uses `db.sqlite` in your project root. No additional configuration needed.
+### Supported Database Types
 
-### 2. MySQL
+#### 1. SQLite (Zero Configuration!)
 
 ```env
-DATABASE_CONNECTION=mysql
+DB_CONNECTION=sqlite
+```
 
-DB_HOST=localhost
+That's it! The system automatically uses `db.sqlite` in your project root. No other database variables needed.
+
+#### 2. MySQL
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
 DB_PORT=3306
+DB_DATABASE=swifty
 DB_USERNAME=root
 DB_PASSWORD=your_password
-DB_NAME=swifty
 ```
 
-### 3. PostgreSQL
+#### 3. PostgreSQL
 
 ```env
-DATABASE_CONNECTION=pgsql
-
-DB_HOST=localhost
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
 DB_PORT=5432
+DB_DATABASE=swifty
 DB_USERNAME=postgres
 DB_PASSWORD=your_password
-DB_NAME=swifty
 ```
 
-## Laravel-Style Conventions
+## Laravel Environment Variables
 
-### Convention Over Configuration
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `DB_CONNECTION` | Database driver (mysql, pgsql, sqlite) | Yes | mysql |
+| `DB_HOST` | Database host | For network DBs | 127.0.0.1 |
+| `DB_PORT` | Database port | No | 3306 (MySQL), 5432 (PostgreSQL) |
+| `DB_DATABASE` | Database name or file path (SQLite) | Yes | swifty |
+| `DB_USERNAME` | Database username | For network DBs | root |
+| `DB_PASSWORD` | Database password | For network DBs | (empty) |
 
-The system follows Laravel's approach of sensible defaults:
+## Convention Over Configuration
 
-- **SQLite**: Automatically uses `db.sqlite` in project root
-- **MySQL**: Uses standard MySQL defaults (localhost:3306)
-- **PostgreSQL**: Uses standard PostgreSQL defaults (localhost:5432)
+### SQLite Behavior
+- **Just set** `DB_CONNECTION=sqlite`
+- **Automatically uses** `db.sqlite` in project root
+- **No additional configuration** needed
+- **Perfect for development**
 
-### Environment Variable Priority
+### MySQL/PostgreSQL Behavior
+- **Requires** standard database credentials
+- **Uses sensible defaults** (127.0.0.1, standard ports)
+- **Works exactly like Laravel**
 
-The system supports both Laravel-style and legacy configuration:
+## Quick Examples
 
-1. `DATABASE_CONNECTION` (Laravel-style, preferred)
-2. `DB_DRIVER` (legacy, still supported)
-
-### Database-Specific Defaults
-
-| Database | Default File/Host | Default Port | Default User |
-|----------|------------------|--------------|--------------|
-| SQLite | `db.sqlite` (project root) | N/A | N/A |
-| MySQL | localhost | 3306 | root |
-| PostgreSQL | localhost | 5432 | postgres |
-
-## Supported Database Types
-
-- **MySQL** - Full support with optimization
-- **PostgreSQL** - Full support with proper defaults
-- **SQLite** - Zero-config setup
-- **SQL Server** - Experimental support
-- **Oracle** - Experimental support
-
-## Quick Start Examples
-
-### Using SQLite (Recommended for Development)
-
-1. Set your connection:
-   ```env
-   DATABASE_CONNECTION=sqlite
-   ```
-
-2. Create the database file:
-   ```bash
-   touch db.sqlite
-   ```
-
-3. That's it! Your app is ready to use SQLite.
-
-### Using MySQL (Production Ready)
-
-1. Copy the MySQL template:
-   ```bash
-   cp .env.mysql.example .env
-   ```
-
-2. Update your credentials:
-   ```env
-   DATABASE_CONNECTION=mysql
-   DB_USERNAME=your_username
-   DB_PASSWORD=your_password
-   DB_NAME=your_database
-   ```
-
-3. Create your database and import schema.
-
-### Using PostgreSQL (Enterprise Ready)
-
-1. Copy the PostgreSQL template:
-   ```bash
-   cp .env.postgresql.example .env
-   ```
-
-2. Update your credentials:
-   ```env
-   DATABASE_CONNECTION=pgsql
-   DB_USERNAME=postgres
-   DB_PASSWORD=your_password
-   DB_NAME=your_database
-   ```
-
-## Advanced Configuration
-
-### Custom SQLite Path
-
-```env
-DATABASE_CONNECTION=sqlite
-DB_DATABASE=/custom/path/to/database.sqlite
+### Development Setup (SQLite)
+```bash
+echo "DB_CONNECTION=sqlite" > .env
+touch db.sqlite
+# Ready to develop!
 ```
 
-### Custom Ports
-
-```env
-DATABASE_CONNECTION=mysql
-DB_PORT=3307  # Custom MySQL port
-```
-
-### Custom Charset
-
-```env
-DATABASE_CONNECTION=mysql
-DB_CHARSET=utf8  # Instead of default utf8mb4
-```
-
-## Migration from Old Configuration
-
-### Before (Legacy)
-```env
-DB_DRIVER=mysql
-DB_HOST=localhost
-# ... other settings
-```
-
-### After (Laravel-style)
-```env
-DATABASE_CONNECTION=mysql
-DB_HOST=localhost
-# ... other settings (unchanged)
-```
-
-**Note**: Legacy configuration is still supported for backward compatibility.
-
-## Environment Files
-
-We provide ready-to-use environment files:
-
-- `.env.mysql.example` - MySQL configuration
-- `.env.postgresql.example` - PostgreSQL configuration  
-- `.env.sqlite.example` - SQLite configuration (minimal)
-
-## Automatic Database Detection
-
-The system automatically detects your database choice and:
-
-1. **Sets appropriate defaults** for your database type
-2. **Applies driver-specific optimizations** 
-3. **Handles connection pooling** automatically
-4. **Manages SQL syntax differences** transparently
-
-## Best Practices
-
-### Development
-```env
-# Perfect for development - zero config
-DATABASE_CONNECTION=sqlite
-```
-
-### Testing
-```env
-# Fast and isolated
-DATABASE_CONNECTION=sqlite
-DB_DATABASE=test.sqlite
-```
-
-### Production
-```env
-# Robust and scalable
-DATABASE_CONNECTION=mysql
-DB_HOST=your-production-host
-DB_USERNAME=production_user
+### Production Setup (MySQL)
+```bash
+cat > .env << EOF
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=swifty_production
+DB_USERNAME=swifty_user
 DB_PASSWORD=secure_password
-DB_NAME=production_db
+EOF
 ```
+
+### Enterprise Setup (PostgreSQL)
+```bash
+cat > .env << EOF
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=swifty_enterprise
+DB_USERNAME=swifty_admin
+DB_PASSWORD=admin_password
+EOF
+```
+
+## Laravel Compatibility
+
+This implementation is 100% compatible with Laravel's database configuration:
+
+- **Same environment variables**
+- **Same conventions**
+- **Same behavior**
+- **Same defaults**
+
+You can copy `.env` database settings directly from a Laravel project and they will work seamlessly.
+
+## Migration from Previous Versions
+
+### Old Format (No longer needed)
+```env
+DATABASE_CONNECTION=mysql  # Old way
+DB_DRIVER=mysql            # Legacy way
+```
+
+### New Format (Laravel-compatible)
+```env
+DB_CONNECTION=mysql        # Laravel way ✅
+```
+
+The system maintains backward compatibility but uses Laravel's standard `DB_CONNECTION` as the primary variable.
 
 ## Troubleshooting
 
 ### SQLite Issues
-- **File not found**: Ensure `db.sqlite` exists in project root
-- **Permission denied**: Check file permissions on SQLite file
-- **Path issues**: Use absolute paths if relative paths don't work
+- Ensure `db.sqlite` file exists in project root
+- Check file permissions
+- For custom paths, use absolute paths
 
 ### MySQL/PostgreSQL Issues
-- **Connection refused**: Verify database server is running
-- **Authentication failed**: Check username/password
-- **Database not found**: Ensure database exists
+- Verify database server is running
+- Check credentials are correct
+- Ensure database exists
+- Test connection with database client
 
-### Common Solutions
+### Common Errors
+- `"Connection failed"` - Check DB credentials
+- `"Database not found"` - Create the database first
+- `"Access denied"` - Verify username/password
 
-1. **Check environment loading**: Ensure `.env` file is loaded properly
-2. **Verify file paths**: SQLite paths should be accessible
-3. **Test connections**: Use database client to test credentials
-4. **Check logs**: Application logs show detailed error messages
+## Best Practices
 
-## Performance Notes
+1. **Use SQLite for development** - Zero configuration
+2. **Use MySQL for production** - Proven and reliable
+3. **Use PostgreSQL for complex apps** - Advanced features
+4. **Keep .env secure** - Never commit to version control
+5. **Use different databases per environment** - Development, staging, production
 
-- **SQLite**: Best for development, small applications
-- **MySQL**: Excellent for web applications, good performance
-- **PostgreSQL**: Best for complex queries, concurrent writes
-
-## Migration Tools
-
-The Laravel-style configuration works seamlessly with:
-- Database migration scripts
-- Seeders and fixtures  
-- Schema builders
-- Connection pooling systems
-
-This approach provides the simplicity of Laravel's database configuration while maintaining the flexibility and power needed for production applications.
+This Laravel-compatible configuration provides the perfect balance of simplicity and power, making database setup as easy as changing a single environment variable.
