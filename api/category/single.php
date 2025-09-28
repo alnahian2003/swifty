@@ -15,11 +15,21 @@ $db = $database->connect();
 // Instantiate blog post object
 $cat = new Category($db);
 
-// Get the Post ID
-$cat->id = isset($_GET["id"]) ? htmlspecialchars($_GET["id"]) : die();
+// Get the Category ID
+$categoryId = isset($_GET["id"]) ? (int) htmlspecialchars($_GET["id"]) : 0;
+
+if ($categoryId <= 0) {
+    http_response_code(400);
+    echo json_encode(["error" => "Valid category ID is required"], JSON_PRETTY_PRINT);
+    exit;
+}
 
 // Get Single Category
-$cat->get();
+if (!$cat->get($categoryId)) {
+    http_response_code(404);
+    echo json_encode(["error" => "Category not found"], JSON_PRETTY_PRINT);
+    exit;
+}
 
 
 // Create the Post Array

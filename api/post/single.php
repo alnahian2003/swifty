@@ -45,10 +45,10 @@ try {
         exit;
     }
 
-    $post->id = (int) $_GET["id"];
+    $postId = (int) $_GET["id"];
 
     // Get Single Post
-    if ($post->get()) {
+    if ($post->get($postId)) {
         // Create the Post Array
         $single = [
             "id" => (int) $post->id,

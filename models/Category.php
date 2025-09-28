@@ -42,7 +42,7 @@ class Category
     }
 
     // Get a Single Category
-    public function get(): bool
+    public function get(int $id): bool
     {
         $query = "
             SELECT * 
@@ -53,7 +53,7 @@ class Category
 
         // Prepare Statement
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id, PDO::PARAM_INT);
+        $stmt->bindParam(1, $id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             // Get the category

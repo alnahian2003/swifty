@@ -56,7 +56,7 @@ class Post
     }
 
     // Get a Single Post
-    public function get(): bool
+    public function get(int $id): bool
     {
         $query = "
             SELECT
@@ -76,13 +76,14 @@ class Post
 
         // Prepare Statement
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id, PDO::PARAM_INT);
+        $stmt->bindParam(1, $id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             // Get the post
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($post) {
+                $this->id = $post["id"];
                 $this->title = $post["title"];
                 $this->categoryId = $post["category_id"];
                 $this->categoryName = $post["category_name"];
