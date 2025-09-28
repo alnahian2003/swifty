@@ -56,7 +56,7 @@ class Post
     }
 
     // Get a Single Post
-    public function single(): bool
+    public function get(): bool
     {
         $query = "
             SELECT

@@ -48,7 +48,7 @@ try {
     $post->id = (int) $_GET["id"];
 
     // Get Single Post
-    if ($post->single()) {
+    if ($post->get()) {
         // Create the Post Array
         $single = [
             "id" => (int) $post->id,

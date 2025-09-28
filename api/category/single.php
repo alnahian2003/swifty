@@ -19,7 +19,7 @@ $cat = new Category($db);
 $cat->id = isset($_GET["id"]) ? htmlspecialchars($_GET["id"]) : die();
 
 // Get Single Category
-$cat->single();
+$cat->get();
 
 
 // Create the Post Array

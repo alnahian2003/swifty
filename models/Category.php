@@ -42,7 +42,7 @@ class Category
     }
 
     // Get a Single Category
-    public function single(): bool
+    public function get(): bool
     {
         $query = "
             SELECT * 
