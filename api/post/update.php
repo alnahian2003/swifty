@@ -2,20 +2,11 @@
 
 declare(strict_types=1);
 
-// Modern approach with autoloading (if available)
-if (file_exists("../../vendor/autoload.php")) {
-    require_once "../../vendor/autoload.php";
-    
-    use Swifty\Controllers\PostController;
-    
-    try {
-        $controller = new PostController();
-        $controller->updatePost();
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Internal server error'], JSON_PRETTY_PRINT);
-        error_log("API Error: " . $e->getMessage());
-    }
+// Use centralized bootstrap
+require_once '../../bootstrap.php';
+
+// Try modern routing first
+if (tryModernRoute('Swifty\Controllers\PostController', 'updatePost')) {
     exit;
 }
 

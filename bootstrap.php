@@ -4,10 +4,54 @@ declare(strict_types=1);
 
 /**
  * Bootstrap file for the Swifty API
- * Sets up autoloading and error handling
+ * Centralized autoloading, error handling, and modern controller routing
+ * Eliminates repetitive autoloader checks across all API endpoints
  */
 
-// Load Composer autoloader
+// Define bootstrap base directory
+define('BOOTSTRAP_DIR', __DIR__);
+
+/**
+ * Check if modern architecture is available and route to appropriate controller
+ * @param string $controllerClass The controller class name
+ * @param string $method The method to call on the controller
+ * @param array $params Optional parameters to pass to the method
+ * @return bool True if modern routing was used, false if should fallback to legacy
+ */
+function tryModernRoute(string $controllerClass, string $method, array $params = []): bool {
+    // Check if autoloader is available
+    if (!file_exists(BOOTSTRAP_DIR . '/vendor/autoload.php')) {
+        return false;
+    }
+    
+    // Load autoloader
+    require_once BOOTSTRAP_DIR . '/vendor/autoload.php';
+    
+    try {
+        // Check if controller class exists
+        if (!class_exists($controllerClass)) {
+            return false;
+        }
+        
+        // Instantiate controller and call method
+        $controller = new $controllerClass();
+        
+        if (!method_exists($controller, $method)) {
+            return false;
+        }
+        
+        // Call the method with parameters
+        call_user_func_array([$controller, $method], $params);
+        
+        return true;
+    } catch (Exception $e) {
+        // Log error and fall back to legacy
+        error_log("Modern routing error: " . $e->getMessage());
+        return false;
+    }
+}
+
+// Load Composer autoloader if available
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }

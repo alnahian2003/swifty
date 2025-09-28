@@ -1,4 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
+// Use centralized bootstrap
+require_once '../../bootstrap.php';
+
+// Try modern routing first
+if (tryModernRoute('Swifty\Controllers\CategoryController', 'getCategoryById')) {
+    exit;
+}
+
+// Legacy approach for backward compatibility
 // Headers for GET Request
 header("Access-Control-Allow-Origin: *");
 header("Content-type: application/json; charset=UTF-8");
