@@ -2,18 +2,16 @@
 
 declare(strict_types=1);
 
+include_once __DIR__ . '/BaseModel.php';
+
 /**
  * Legacy Post model - maintained for backward compatibility
  * For new code, use Swifty\Models\Post instead
  * 
  * @deprecated Use Swifty\Models\Post instead
  */
-class Post
+class Post extends BaseModel
 {
-    // DB Related
-    private PDO $conn;
-    private string $table = "posts";
-
     // Post Properties
     public ?int $id = null;
     public ?int $categoryId = null;
@@ -24,13 +22,12 @@ class Post
     public ?string $created_at = null;
     public ?string $createdAt = null; // Added for consistency
 
-    // Construct with Database
-    public function __construct(PDO $db)
+    protected function getTableName(): string
     {
-        $this->conn = $db;
+        return "posts";
     }
 
-    // Get All Posts
+    // Get All Posts with Categories
     public function read(): PDOStatement
     {
         $query = "
@@ -126,14 +123,8 @@ class Post
         $stmt->bindParam(":body", $this->body, PDO::PARAM_STR);
         $stmt->bindParam(":author", $this->author, PDO::PARAM_STR);
 
-        try {
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log("Database Error: " . $e->getMessage());
-            return false;
-        }
+        return $this->executeStatement($stmt);
     }
-
 
     // Update a Post
     public function update(): bool
@@ -165,53 +156,6 @@ class Post
         $stmt->bindParam(":body", $this->body, PDO::PARAM_STR);
         $stmt->bindParam(":author", $this->author, PDO::PARAM_STR);
 
-        try {
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log("Database Error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    // Delete a Post
-    public function delete(): bool
-    {
-        $query = "DELETE FROM {$this->table} WHERE id = :id";
-
-        // Prepare Statement
-        $stmt = $this->conn->prepare($query);
-
-        // Sanitize data
-        $this->id = $this->sanitizeInt($this->id);
-        
-        // Bind Data 
-        $stmt->bindParam(":id", $this->id, PDO::PARAM_INT);
-
-        try {
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log("Database Error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Sanitize string input
-     */
-    private function sanitizeString(?string $input): string
-    {
-        if ($input === null) {
-            return '';
-        }
-        
-        return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
-    }
-
-    /**
-     * Sanitize integer input
-     */
-    private function sanitizeInt($input): int
-    {
-        return (int) filter_var($input, FILTER_SANITIZE_NUMBER_INT);
+        return $this->executeStatement($stmt);
     }
 }
