@@ -1,7 +1,7 @@
 <?php
 // Headers for GET Request
 header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json");
+header("Content-type: application/json; charset=UTF-8");
 
 include_once("../../config/Database.php");
 include_once("../../models/Category.php");

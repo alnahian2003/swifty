@@ -1,0 +1,30 @@
+# Composer
+/vendor/
+composer.phar
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+/logs/
+
+# Temporary files
+/tmp/
+*.tmp
+
+# Cache files
+/cache/
+*.cache

@@ -1,7 +1,7 @@
 <?php
 // Headers for GET Request
 header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json");
+header("Content-type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: PUT");
 header("Access-Control-Allow-Headers: Access-Control-Allow-Headers, Access-Control-Allow-Methods,Content-type,Access-Control-Allow-Origin, Authorization, X-Requested-With");
 
